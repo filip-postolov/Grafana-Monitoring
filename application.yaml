@@ -3,21 +3,29 @@ kind: Application
 metadata:
   name: grafana
   namespace: argocd
+
 spec:
   project: default
-  source:
-    repoURL: https://github.com/filip-postolov/Grafana-Monitoring.git
-    targetRevision: HEAD
-    path: dev
+
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: grafana
+      targetRevision: 9.5.6  
+      helm:
+        valueFiles:
+          - $values/dev/values.yaml
+
+    - repoURL: https://github.com/filip-postolov/Grafana-Monitoring.git
+      targetRevision: HEAD
+      ref: values
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
 
   syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
-
     automated:
       prune: true
       selfHeal: true
-
+    syncOptions:
+      - CreateNamespace=true
